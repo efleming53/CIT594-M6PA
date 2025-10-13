@@ -7,9 +7,9 @@
  * university code of academic integrity:
  *  https://catalog.upenn.edu/pennbook/code-of-academic-integrity/ >
  * Signed,
- * Author: YOUR NAME HERE
- * Penn email: <YOUR-EMAIL-HERE@seas.upenn.edu>
- * Date: YYYY-MM-DD
+ * Author: Eric Fleming
+ * Penn email: eflem53@seas.upenn.edu
+ * Date: 2025-10-13
  */
 
 //import any classes you will need
