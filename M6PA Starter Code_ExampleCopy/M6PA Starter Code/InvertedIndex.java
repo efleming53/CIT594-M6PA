@@ -47,6 +47,22 @@ public class InvertedIndex {
             "software", "update", "service"
     );
 
+    
+    /*
+    This method returns an array of tokens from a given string
+    @param String text
+    @return returns an array of tokens
+    */
+   // tokenize
+    public String[] tokenize(String text) {
+    		
+    	text = text.toLowerCase().replaceAll("[^a-z0-9\\s-]", " ").replaceAll("\\b-+", "").replaceAll("-+\\b",""); // converts text to lowercase, replaces punctuation with spaces
+    	
+    	String[] tokens = text.split("\\s+"); // split text into tokens along one or more instances of whitespace
+    	
+    	return tokens;
+    }
+    
     /*
      This method adds a document
      @param int docID, String text
@@ -54,6 +70,43 @@ public class InvertedIndex {
      */
     // addDocument
     public void addDocument(int docID, String text) {
+    	
+    	// null input check
+    	if (text == null) {
+    		return;
+    	}
+    	
+    	String[] tokens = tokenize(text); // tokenize document text
+    	
+    	int firstIndex = 0; // index of first valid token to make root if root not set yet
+    	
+    	// if no root yet, traverse through tokens until a valid one is found (not empty), then make the root a new node with that word and docID
+    	if (root == null) {
+        	while (tokens[firstIndex].isEmpty()) {
+        		firstIndex++;
+        	}
+        	root = new BSTNode(tokens[firstIndex], docID);
+    	}
+    	
+    	// set firstIndex to -1 if it was not incremented above, this will make value for i below not start at 1 in that case
+    	if (firstIndex == 0) {
+    		firstIndex = -1;
+    	}
+    	
+    	// loop over all tokens in document
+    	for (int i = firstIndex + 1; i < tokens.length; i++) {
+    		
+    		String word = tokens[i]; // get current word from list of tokens
+    		
+    		// skip processing if word is empty string or is a stop_word
+    		if (word.isEmpty() || STOP_WORDS.contains(word)) {
+    			continue;
+    		}
+    		
+    		
+    		
+    	}
+    	
         return;
     }
 
