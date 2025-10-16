@@ -69,7 +69,7 @@ public class InvertedIndexTest {
         // Add your test cases for the getIndex method here
         // Ensure that you have at least 3 distinct and non-trivial test cases
         index.addDocument(1, "dog cat bird");
-        index.addDocument(1, "cat");
+        index.addDocument(2, "cat");
         Map<String, Set<Integer>> map = index.getIndex();
         
         assertEquals(3, map.size(), "Index should contain 3 words"); // test size of index

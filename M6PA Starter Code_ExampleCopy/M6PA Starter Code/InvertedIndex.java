@@ -47,6 +47,54 @@ public class InvertedIndex {
             "software", "update", "service"
     );
 
+    /*
+    This method recursively finds the node with the given word
+    @param 
+    	BSTNode parent: the parent of the root node
+    	BSTNode root: the node we are inspecting
+    	String word: the word we are searching for
+    @return this method returns an ArrayList of size 4:
+    	index 0: the parent node
+    	index 1: the node itself
+    	index 2: the nodes left child
+    	index 3: the nodes right child
+    */
+   // findNode
+    public ArrayList<BSTNode> findNode(BSTNode parent, BSTNode root, String word) {
+    	// base case: root is null, means word was not found
+    	if (root == null) {
+    		ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
+    		nodeReferences.add(parent); // parent node is parent
+    		nodeReferences.add(null); // node is null
+    		nodeReferences.add(null); // left child is null
+    		nodeReferences.add(null); // right child is null
+    		return nodeReferences;
+    	}
+    	
+    	int comparison = word.compareTo(root.keyWord);
+    	
+		// found node for given word, return array with references   	
+    	if (comparison == 0) {
+        	ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
+        	nodeReferences.add(parent); // parent node is parent
+        	nodeReferences.add(root); // node is root
+        	nodeReferences.add(root.left); // left child
+        	nodeReferences.add(root.right); // right child
+        	return nodeReferences;  	
+        
+        // word smaller than current node, recursively call left
+    	} else if (comparison < 0) {
+        	return findNode(root, root.left, word);  
+        	
+        // word larger than current node, recursively call right
+    	} else {
+        	return findNode(root, root.right, word);  
+    	}
+ 		
+    }
+
+    	
+    
     
     /*
     This method returns an array of tokens from a given string
@@ -81,6 +129,9 @@ public class InvertedIndex {
     	int firstIndex = 0; // index of first valid token to make root if root not set yet
     	
     	// if no root yet, traverse through tokens until a valid one is found (not empty), then make the root a new node with that word and docID
+    	
+    	// TODO: handle instance where root could be a STOP_WORD?
+    	
     	if (root == null) {
         	while (tokens[firstIndex].isEmpty()) {
         		firstIndex++;
@@ -103,8 +154,28 @@ public class InvertedIndex {
     			continue;
     		}
     		
+    		ArrayList<BSTNode> nodes = findNode(null, root, word);
     		
+    		/*Node returned from findNode is null
+    		 *We must create a node for this word*/
+    		if (nodes.get(1) == null) {
+    			BSTNode newNode = new BSTNode(word, docID); // create new node for word
+    			
+    			int parentComparison = word.compareTo(nodes.get(0).keyWord); // find if word is larger or smaller than parent node so we can set parents child correctly
+    			
+    			// make new node parents left child if smaller
+    			if (parentComparison < 0) {
+    				nodes.get(0).left = newNode;
+    			}
+    			
+    			// make new node parents right if larger
+    			if (parentComparison > 0) {
+    				nodes.get(0).right = newNode;
+    			}
+    			continue;
+    		}
     		
+    		nodes.get(1).documentIDs.add(docID);	
     	}
     	
         return;
@@ -141,11 +212,39 @@ public class InvertedIndex {
      */
     // returns the map of the inverted index
     public Map<String, Set<Integer>> getIndex() {
-       return null;
+    	
+    	// return empty HashMap if root is null
+    	if (root == null) {
+    		return new HashMap<>();
+    	}
+    	
+    	HashMap<String, Set<Integer>> nodes = new HashMap<>(); // init HashMap to populate with nodes
+    	
+    	getIndexTraversal(root, nodes); // call recursive function to populate HashMap
+    	
+       return nodes;
     }
 
     /*
      * TODO: Implement helper methods below
      */
+    
+    /*
+    This method recursively traverses the BST and populates a HashMap
+    with each nodes information as it goes along
+    @param root: current node, nodes: HashMap to populate
+    @return this method returns nothing
+    */
+    public void getIndexTraversal(BSTNode root, HashMap<String, Set<Integer>> nodes) {
+    	// base case: root is null
+    	if (root == null) {
+    		return;
+    	}
+    	
+    	nodes.put(root.keyWord, root.documentIDs); // key = nodes keyWord, value = set of docIDs
+    	
+    	getIndexTraversal(root.left, nodes); // recursively traverse to left child  	
+    	getIndexTraversal(root.right, nodes); // recursively traverse to right child
+    }
 }
 
