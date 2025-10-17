@@ -58,7 +58,7 @@ public class InvertedIndex {
     public void addDocument(int docID, String text) {
     	
     	// null input check
-    	if (text == null) {
+    	if (text == null || text.isEmpty()) {
     		return;
     	}
     	
@@ -177,6 +177,9 @@ public class InvertedIndex {
     // to remove a document traverse the entire tree and remove the given docID from the node's set
     // remove the document ID
     public void removeDocument(int docID){
+    	
+    	removeDocumentTraversal(root, docID);
+    	
         return;
     }
 
@@ -251,9 +254,6 @@ public class InvertedIndex {
  		
     }
 
-    	
-    
-    
     /*
     This method returns an array of tokens from a given string
     @param String text
@@ -286,5 +286,26 @@ public class InvertedIndex {
     	getIndexTraversal(root.left, nodes); // recursively traverse to left child  	
     	getIndexTraversal(root.right, nodes); // recursively traverse to right child
     }
+    
+    /*
+    This method recursively traverses the BST and removes the given docID
+    @param root: current node, docID: docID to remove
+    @return this method returns nothing
+    */
+    public void removeDocumentTraversal(BSTNode root, int docID) {
+    	// base case: root is null
+    	if (root == null) {
+    		return;
+    	}
+    	
+    	// if current nodes docID set contains given docID, remove it
+    	if (root.documentIDs.contains(docID)) {
+    		root.documentIDs.remove(docID);
+    	}
+    	
+    	removeDocumentTraversal(root.left, docID); // recursively traverse to left child  	
+    	removeDocumentTraversal(root.right, docID); // recursively traverse to right child
+    }
+    
 }
 
