@@ -47,69 +47,7 @@ public class InvertedIndex {
             "software", "update", "service"
     );
 
-    /*
-    This method recursively finds the node with the given word
-    @param 
-    	BSTNode parent: the parent of the root node
-    	BSTNode root: the node we are inspecting
-    	String word: the word we are searching for
-    @return this method returns an ArrayList of size 4:
-    	index 0: the parent node
-    	index 1: the node itself
-    	index 2: the nodes left child
-    	index 3: the nodes right child
-    */
-   // findNode
-    public ArrayList<BSTNode> findNode(BSTNode parent, BSTNode root, String word) {
-    	// base case: root is null, means word was not found
-    	if (root == null) {
-    		ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
-    		nodeReferences.add(parent); // parent node is parent
-    		nodeReferences.add(null); // node is null
-    		nodeReferences.add(null); // left child is null
-    		nodeReferences.add(null); // right child is null
-    		return nodeReferences;
-    	}
-    	
-    	int comparison = word.compareTo(root.keyWord);
-    	
-		// found node for given word, return array with references   	
-    	if (comparison == 0) {
-        	ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
-        	nodeReferences.add(parent); // parent node is parent
-        	nodeReferences.add(root); // node is root
-        	nodeReferences.add(root.left); // left child
-        	nodeReferences.add(root.right); // right child
-        	return nodeReferences;  	
-        
-        // word smaller than current node, recursively call left
-    	} else if (comparison < 0) {
-        	return findNode(root, root.left, word);  
-        	
-        // word larger than current node, recursively call right
-    	} else {
-        	return findNode(root, root.right, word);  
-    	}
- 		
-    }
 
-    	
-    
-    
-    /*
-    This method returns an array of tokens from a given string
-    @param String text
-    @return returns an array of tokens
-    */
-   // tokenize
-    public String[] tokenize(String text) {
-    		
-    	text = text.toLowerCase().replaceAll("[^a-z0-9\\s-]", " ").replaceAll("\\b-+", "").replaceAll("-+\\b",""); // converts text to lowercase, replaces punctuation with spaces
-    	
-    	String[] tokens = text.split("\\s+"); // split text into tokens along one or more instances of whitespace
-    	
-    	return tokens;
-    }
     
     /*
      This method adds a document
@@ -189,7 +127,45 @@ public class InvertedIndex {
     */
     //search
     public Set<Integer> search(String query) {
-        return null;
+    	
+    	// null/empty input check
+    	if (query == null || query.isEmpty()) {
+    		return new HashSet<Integer>();
+    	}
+    	
+    	String[] tokens = tokenize(query); // tokenize query
+    	
+		Set<Integer> docIDs = new HashSet<Integer>(); // init Set to store intersection of docIDs
+    	
+    	// loop over tokens
+    	for (int i = 0; i < tokens.length; i++) {
+    		
+    		int firstValidToken = 0; // track where first valid token is so we can copy its docIDs into Set
+    		
+    		String word = tokens[i]; // get current token
+    		
+    		// skip empty tokens and stop words, increment firstValidToken
+    		if (word.isEmpty() || STOP_WORDS.contains(word)) {
+    			firstValidToken++;
+    			continue;
+    		}
+    		
+    		ArrayList<BSTNode> nodes = findNode(null, root, word); // search for current word
+    		
+    		// if word not found, return empty set
+    		if (nodes.get(1) == null) {
+    			return new HashSet<Integer>();
+    		}
+    		
+    		// if word is first valid token, add all of its docIDs to start running Set
+    		if (i == firstValidToken) {
+    			docIDs.addAll(nodes.get(1).documentIDs);
+    			continue;
+    		}    		
+    		docIDs.retainAll(nodes.get(1).documentIDs); // keep all docIDs in running set that are in current words Set	  		
+    	}
+    	
+        return docIDs;
     }
 
 
@@ -228,6 +204,70 @@ public class InvertedIndex {
     /*
      * TODO: Implement helper methods below
      */
+    
+    /*
+    This method recursively finds the node with the given word
+    @param 
+    	BSTNode parent: the parent of the root node
+    	BSTNode root: the node we are inspecting
+    	String word: the word we are searching for
+    @return this method returns an ArrayList of size 4:
+    	index 0: the parent node
+    	index 1: the node itself
+    	index 2: the nodes left child
+    	index 3: the nodes right child
+    */
+   // findNode
+    public ArrayList<BSTNode> findNode(BSTNode parent, BSTNode root, String word) {
+    	// base case: root is null, means word was not found
+    	if (root == null) {
+    		ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
+    		nodeReferences.add(parent); // parent node is parent
+    		nodeReferences.add(null); // node is null
+    		nodeReferences.add(null); // left child is null
+    		nodeReferences.add(null); // right child is null
+    		return nodeReferences;
+    	}
+    	
+    	int comparison = word.compareTo(root.keyWord);
+    	
+		// found node for given word, return array with references   	
+    	if (comparison == 0) {
+        	ArrayList<BSTNode> nodeReferences = new ArrayList<BSTNode>(4);
+        	nodeReferences.add(parent); // parent node is parent
+        	nodeReferences.add(root); // node is root
+        	nodeReferences.add(root.left); // left child
+        	nodeReferences.add(root.right); // right child
+        	return nodeReferences;  	
+        
+        // word smaller than current node, recursively call left
+    	} else if (comparison < 0) {
+        	return findNode(root, root.left, word);  
+        	
+        // word larger than current node, recursively call right
+    	} else {
+        	return findNode(root, root.right, word);  
+    	}
+ 		
+    }
+
+    	
+    
+    
+    /*
+    This method returns an array of tokens from a given string
+    @param String text
+    @return returns an array of tokens
+    */
+   // tokenize
+    public String[] tokenize(String text) {
+    		
+    	text = text.toLowerCase().replaceAll("[^a-z0-9\\s-]", " ").replaceAll("\\b-+", "").replaceAll("-+\\b",""); // converts text to lowercase, replaces punctuation with spaces
+    	
+    	String[] tokens = text.split("\\s+"); // split text into tokens along one or more instances of whitespace
+    	
+    	return tokens;
+    }
     
     /*
     This method recursively traverses the BST and populates a HashMap
